@@ -1,17 +1,6 @@
 <?php
 
-/*
- * NOTICE OF LICENSE
- *
- * Part of the Rinvex Fort Package.
- *
- * This source file is subject to The MIT License (MIT)
- * that is bundled with this package in the LICENSE file.
- *
- * Package: Rinvex Fort Package
- * License: The MIT License (MIT)
- * Link:    https://rinvex.com
- */
+declare(strict_types=1);
 
 namespace Rinvex\Fort\Services;
 
@@ -88,7 +77,7 @@ class TwoFactorTotpProvider
      */
     public function base32Decode($b32)
     {
-        $b32 = strtoupper($b32);
+        $b32 = mb_strtoupper($b32);
 
         $this->validateSecret($b32);
 
@@ -107,7 +96,7 @@ class TwoFactorTotpProvider
      */
     public function oathHotp($binaryKey, $timestamp)
     {
-        if (strlen($binaryKey) < 8) {
+        if (mb_strlen($binaryKey) < 8) {
             throw new Exception('Secret key is too short. Must be at least 16 base 32 characters');
         }
 
@@ -150,9 +139,6 @@ class TwoFactorTotpProvider
      **/
     public function verifyKey($b32seed, $key, $window = 1, $useTimeStamp = true)
     {
-        // Fire the Two-Factor TOTP verify start event
-        event('rinvex.fort.twofactor.totp.verify.start', [$b32seed, $key]);
-
         $timeStamp = $this->getTimestamp();
 
         if ($useTimeStamp !== true) {
@@ -163,15 +149,9 @@ class TwoFactorTotpProvider
 
         for ($ts = $timeStamp - $window; $ts <= $timeStamp + $window; $ts++) {
             if (hash_equals($this->oathHotp($binarySeed, $ts), $key)) {
-                // Fire the Two-Factor TOTP verify success event
-                event('rinvex.fort.twofactor.totp.verify.success', [$b32seed, $key]);
-
                 return true;
             }
         }
-
-        // Fire the Two-Factor TOTP verify failed event
-        event('rinvex.fort.twofactor.totp.verify.failed', [$b32seed, $key]);
 
         return false;
     }
@@ -186,9 +166,10 @@ class TwoFactorTotpProvider
     public function oathTruncate($hash)
     {
         $offset = ord($hash[19]) & 0xf;
-        $temp   = unpack('N', substr($hash, $offset, 4));
+        $temp = unpack('N', substr($hash, $offset, 4));
+        $token = $temp[1] & 0x7fffffff;
 
-        return substr($temp[1] & 0x7fffffff, -static::OPT_LENGTH);
+        return substr((string) $token, -static::OPT_LENGTH);
     }
 
     /**
@@ -223,7 +204,7 @@ class TwoFactorTotpProvider
         $renderer->setHeight($size);
 
         $writer = new Writer($renderer);
-        $data   = $writer->writeString($url, $encoding);
+        $data = $writer->writeString($url, $encoding);
 
         return 'data:image/png;base64,'.base64_encode($data);
     }

@@ -1,21 +1,10 @@
 <?php
 
-/*
- * NOTICE OF LICENSE
- *
- * Part of the Rinvex Fort Package.
- *
- * This source file is subject to The MIT License (MIT)
- * that is bundled with this package in the LICENSE file.
- *
- * Package: Rinvex Fort Package
- * License: The MIT License (MIT)
- * Link:    https://rinvex.com
- */
+declare(strict_types=1);
 
 namespace Rinvex\Fort\Traits;
 
-use Rinvex\Fort\Notifications\EmailVerificationRequestNotification;
+use Rinvex\Fort\Notifications\EmailVerificationNotification;
 
 trait CanVerifyEmail
 {
@@ -42,13 +31,13 @@ trait CanVerifyEmail
     /**
      * Send the email verification notification.
      *
-     * @param array  $token
+     * @param string $token
      * @param string $expiration
      *
      * @return void
      */
-    public function sendEmailVerificationNotification(array $token, $expiration)
+    public function sendEmailVerificationNotification($token, $expiration)
     {
-        $this->notify(new EmailVerificationRequestNotification($token, $expiration));
+        $this->notify(new EmailVerificationNotification($token, $expiration));
     }
 }

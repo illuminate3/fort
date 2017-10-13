@@ -1,22 +1,30 @@
 <?php
 
-/*
- * NOTICE OF LICENSE
- *
- * Part of the Rinvex Fort Package.
- *
- * This source file is subject to The MIT License (MIT)
- * that is bundled with this package in the LICENSE file.
- *
- * Package: Rinvex Fort Package
- * License: The MIT License (MIT)
- * Link:    https://rinvex.com
- */
+declare(strict_types=1);
 
 namespace Rinvex\Fort\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Rinvex\Fort\Models\Socialite.
+ *
+ * @property int                           $id
+ * @property int                           $user_id
+ * @property string                        $provider
+ * @property int                           $provider_uid
+ * @property \Carbon\Carbon|null           $created_at
+ * @property \Carbon\Carbon|null           $updated_at
+ * @property-read \Rinvex\Fort\Models\User $user
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|\Rinvex\Fort\Models\Socialite whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Rinvex\Fort\Models\Socialite whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Rinvex\Fort\Models\Socialite whereProvider($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Rinvex\Fort\Models\Socialite whereProviderUid($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Rinvex\Fort\Models\Socialite whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Rinvex\Fort\Models\Socialite whereUserId($value)
+ * @mixin \Eloquent
+ */
 class Socialite extends Model
 {
     /**
@@ -32,14 +40,12 @@ class Socialite extends Model
      * Create a new Eloquent model instance.
      *
      * @param array $attributes
-     *
-     * @return void
      */
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
 
-        $this->setTable(config('rinvex.fort.tables.socialite'));
+        $this->setTable(config('rinvex.fort.tables.socialites'));
     }
 
     /**
@@ -49,6 +55,8 @@ class Socialite extends Model
      */
     public function user()
     {
-        return $this->belongsTo(config('rinvex.fort.models.user'));
+        $userModel = config('auth.providers.'.config('auth.guards.'.config('auth.defaults.guard').'.provider').'.model');
+
+        return $this->belongsTo($userModel, 'user_id', 'id');
     }
 }

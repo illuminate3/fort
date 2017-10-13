@@ -1,25 +1,18 @@
 <?php
 
-/*
- * NOTICE OF LICENSE
- *
- * Part of the Rinvex Fort Package.
- *
- * This source file is subject to The MIT License (MIT)
- * that is bundled with this package in the LICENSE file.
- *
- * Package: Rinvex Fort Package
- * License: The MIT License (MIT)
- * Link:    https://rinvex.com
- */
+declare(strict_types=1);
 
 namespace Rinvex\Fort\Notifications;
 
+use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class RegistrationSuccessNotification extends Notification
+class RegistrationSuccessNotification extends Notification implements ShouldQueue
 {
+    use Queueable;
+
     /**
      * Indicates if this is social registration mode or not.
      *
@@ -31,8 +24,6 @@ class RegistrationSuccessNotification extends Notification
      * Create a notification instance.
      *
      * @param bool $social
-     *
-     * @return void
      */
     public function __construct($social = false)
     {
@@ -54,30 +45,32 @@ class RegistrationSuccessNotification extends Notification
     /**
      * Build the mail representation of the notification.
      *
+     * @param mixed $notifiable
+     *
      * @return \Illuminate\Notifications\Messages\MailMessage
      */
-    public function toMail()
+    public function toMail($notifiable)
     {
         if ($this->social) {
             if (config('rinvex.fort.registration.moderated')) {
-                $phrase = trans('rinvex.fort::frontend/emails.registration.welcome.intro_moderation');
+                $phrase = trans('emails.register.welcome.intro_moderation');
             } else {
-                $phrase = trans('rinvex.fort::frontend/emails.registration.welcome.intro_default');
+                $phrase = trans('emails.register.welcome.intro_default');
             }
         } else {
-            if (config('rinvex.fort.verification.required') && config('rinvex.fort.registration.moderated')) {
-                $phrase = trans('rinvex.fort::frontend/emails.registration.welcome.intro_verification_moderation');
-            } elseif (! config('rinvex.fort.verification.required') && config('rinvex.fort.registration.moderated')) {
-                $phrase = trans('rinvex.fort::frontend/emails.registration.welcome.intro_moderation');
-            } elseif (config('rinvex.fort.verification.required') && ! config('rinvex.fort.registration.moderated')) {
-                $phrase = trans('rinvex.fort::frontend/emails.registration.welcome.intro_verification');
+            if (config('rinvex.fort.emailverification.required') && config('rinvex.fort.registration.moderated')) {
+                $phrase = trans('emails.register.welcome.intro_verification_moderation');
+            } elseif (! config('rinvex.fort.emailverification.required') && config('rinvex.fort.registration.moderated')) {
+                $phrase = trans('emails.register.welcome.intro_moderation');
+            } elseif (config('rinvex.fort.emailverification.required') && ! config('rinvex.fort.registration.moderated')) {
+                $phrase = trans('emails.register.welcome.intro_verification');
             } else {
-                $phrase = trans('rinvex.fort::frontend/emails.registration.welcome.intro_default');
+                $phrase = trans('emails.register.welcome.intro_default');
             }
         }
 
         return (new MailMessage())
-            ->subject(trans('rinvex.fort::frontend/emails.registration.welcome.subject'))
+            ->subject(trans('emails.register.welcome.subject'))
             ->line($phrase);
     }
 }

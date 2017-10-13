@@ -1,42 +1,33 @@
 <?php
 
-/*
- * NOTICE OF LICENSE
- *
- * Part of the Rinvex Fort Package.
- *
- * This source file is subject to The MIT License (MIT)
- * that is bundled with this package in the LICENSE file.
- *
- * Package: Rinvex Fort Package
- * License: The MIT License (MIT)
- * Link:    https://rinvex.com
- */
+declare(strict_types=1);
 
 namespace Rinvex\Fort\Notifications;
 
+use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class VerificationSuccessNotification extends Notification
+class VerificationSuccessNotification extends Notification implements ShouldQueue
 {
+    use Queueable;
+
     /**
      * Indicates if the user is active.
      *
      * @var bool
      */
-    public $active;
+    public $isActive;
 
     /**
      * Create a notification instance.
      *
-     * @param bool $social
-     *
-     * @return void
+     * @param bool $isActive
      */
-    public function __construct($active = false)
+    public function __construct($isActive = false)
     {
-        $this->active = $active;
+        $this->isActive = $isActive;
     }
 
     /**
@@ -54,18 +45,20 @@ class VerificationSuccessNotification extends Notification
     /**
      * Build the mail representation of the notification.
      *
+     * @param mixed $notifiable
+     *
      * @return \Illuminate\Notifications\Messages\MailMessage
      */
-    public function toMail()
+    public function toMail($notifiable)
     {
-        if ($this->active) {
-            $phrase = trans('rinvex.fort::frontend/emails.verification.email.success.intro_default');
+        if ($this->isActive) {
+            $phrase = trans('emails.verification.email.success.intro_default');
         } else {
-            $phrase = trans('rinvex.fort::frontend/emails.verification.email.success.intro_moderation');
+            $phrase = trans('emails.verification.email.success.intro_moderation');
         }
 
         return (new MailMessage())
-            ->subject(trans('rinvex.fort::frontend/emails.verification.email.success.subject'))
+            ->subject(trans('emails.verification.email.success.subject'))
             ->line($phrase);
     }
 }

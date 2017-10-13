@@ -1,6 +1,6 @@
 {
     "name": "rinvex/fort",
-    "description": "Rinvex Fort is a powerful authentication, authorization and verification package built on top of Laravel. It provides developers with Role Based Access Control, Two-Factor Authentication, Social Authentication, compatible with Laravel’s standard API and fully featured all-in-one solution out of the box.",
+    "description": "Rinvex Fort is a powerful authentication, authorization and verification package built on top of Laravel. It provides developers with Role Based Access Control, TwoFactor Authentication, Social Authentication, compatible with Laravel’s standard API and fully featured all-in-one solution out of the box.",
     "keywords": [
         "authentication",
         "authorization",
@@ -46,16 +46,23 @@
         }
     ],
     "require": {
-        "php": ">=5.6.4",
-        "laravel/socialite": "2.0.*",
+        "php": "^7.0.0",
+        "laravelcollective/html": "~5.4.0|~5.5.0",
+        "laravel/framework": "~5.4.0|~5.5.0",
+        "laravel/socialite": "^3.0.0",
+        "watson/validating": "^3.0.1",
         "bacon/bacon-qr-code": "1.0.*",
         "rinvex/support": "dev-develop",
         "rinvex/country": "dev-develop",
-        "symfony/polyfill-php56": "1.2.*",
-        "rinvex/repository": "dev-develop",
-        "paragonie/random_compat": "2.0.*",
+        "rinvex/language": "dev-develop",
+        "rinvex/cacheable": "dev-develop",
         "christian-riesen/base32": "1.3.*",
-        "laravel/framework": "5.3.*"
+        "spatie/laravel-sluggable": "^1.3.0",
+        "spatie/laravel-translatable": "^1.1.0",
+        "laravel-notification-channels/authy": "dev-develop"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^6.0.0"
     },
     "autoload": {
         "classmap": [
@@ -68,9 +75,20 @@
             "Rinvex\\Fort\\": "src"
         }
     },
+    "config": {
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "optimize-autoloader": true
+    },
     "extra": {
         "branch-alias": {
             "dev-master": "1.0-dev"
+        },
+        "laravel": {
+            "providers": [
+                "Rinvex\\Fort\\Providers\\FortDeferredServiceProvider",
+                "Rinvex\\Fort\\Providers\\FortServiceProvider"
+            ]
         }
     },
     "minimum-stability": "dev",

@@ -1,27 +1,20 @@
 <?php
 
-/*
- * NOTICE OF LICENSE
- *
- * Part of the Rinvex Fort Package.
- *
- * This source file is subject to The MIT License (MIT)
- * that is bundled with this package in the LICENSE file.
- *
- * Package: Rinvex Fort Package
- * License: The MIT License (MIT)
- * Link:    https://rinvex.com
- */
+declare(strict_types=1);
 
 namespace Rinvex\Fort\Notifications;
 
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class AuthenticationLockoutNotification extends Notification
+class AuthenticationLockoutNotification extends Notification implements ShouldQueue
 {
+    use Queueable;
+
     /**
      * The request instance.
      *
@@ -33,8 +26,6 @@ class AuthenticationLockoutNotification extends Notification
      * Create a notification instance.
      *
      * @param \Illuminate\Http\Request $request
-     *
-     * @return void
      */
     public function __construct(Request $request)
     {
@@ -56,17 +47,19 @@ class AuthenticationLockoutNotification extends Notification
     /**
      * Build the mail representation of the notification.
      *
+     * @param mixed $notifiable
+     *
      * @return \Illuminate\Notifications\Messages\MailMessage
      */
-    public function toMail()
+    public function toMail($notifiable)
     {
         return (new MailMessage())
-            ->subject(trans('rinvex.fort::frontend/emails.auth.lockout.subject'))
-            ->line(trans('rinvex.fort::frontend/emails.auth.lockout.intro', [
+            ->subject(trans('emails.auth.lockout.subject'))
+            ->line(trans('emails.auth.lockout.intro', [
                 'created_at' => new Carbon(),
-                'ip'         => $this->request->ip(),
-                'agent'      => $this->request->server('HTTP_USER_AGENT'),
+                'ip' => $this->request->ip(),
+                'agent' => $this->request->server('HTTP_USER_AGENT'),
             ]))
-            ->line(trans('rinvex.fort::frontend/emails.auth.lockout.outro'));
+            ->line(trans('emails.auth.lockout.outro'));
     }
 }
